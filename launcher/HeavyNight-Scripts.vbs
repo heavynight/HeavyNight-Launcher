@@ -4,7 +4,7 @@ Option Explicit
 ' \\\\\\\\\\\ SECCIÓN DE TODAS LAS VARIABLES \\\\\\\\\\\
  Dim hn, objXmlHttp, objADOStream, objFSO, objFolder, strLocalFolderPath, strUrl, paginaweb, scriptPath, configFile, configContent
  Dim strLocalFolderName, strRemoteFolderName, objShell, result, oShell, strFolder, response, scriptFolder, ip, forge, cversion
- Dim strDestFolder, strNewFolderName, sourceFolderName, destFolder, WshShell, link, request, lockFile
+ Dim strDestFolder, strNewFolderName, sourceFolderName, destFolder, WshShell, link, request, lockFile, cjava
  Dim Return, FolderDel, rename_file, obj, texto, MyBox, fso, carpeta, respuesta, file, maintenance, dataFolder
  Dim categoriavieja, nuevacategoria, arrFolders, subFolder, destPath, fileContent, i, line, winHttpReq
  Dim fs, currentFolder, versionFolderPath, versionPath, versionFile, version, url, objFile, urlRemota
@@ -483,6 +483,7 @@ End If
              carpeta = responseLines(lineNumber)
              ip = responseLines(3)
              forge = responseLines(4)
+             cjava = responseLines(5)
              cversion = responseLines(1)
          Else
              MsgBox "La línea solicitada no existe en la respuesta."
@@ -553,7 +554,7 @@ End If
          oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, False
          '
          ' Llamar a la subrutina "DownloadFile"
-         DownloadFile "https://www.heavynight.com/launcherV5/launcher_config.js", "launcher\resources\app\launcher_config.js"
+         DownloadFile "https://www.heavynight.com/launcherV5/launcher_configs.js", "launcher\resources\app\launcher_config.js"
 
          ' Leer el contenido del archivo descargado
          Set fso = CreateObject("Scripting.FileSystemObject")
@@ -566,6 +567,7 @@ End If
          configContent = Replace(configContent, "{category-name}", carpeta)
          configContent = Replace(configContent, "{category-version}", cversion)
          configContent = Replace(configContent, "{category-forge}", forge)
+         configContent = Replace(configContent, "{category-java}", cjava)
          
          ' Guardar el contenido modificado de vuelta al archivo
          Set configFile = fso.OpenTextFile("launcher\resources\app\launcher_config.js", 2)
@@ -1422,6 +1424,7 @@ End If
              carpeta = responseLines(lineNumber)
              ip = responseLines(3)
              forge = responseLines(4)
+             cjava = responseLines(5)
              cversion = responseLines(1)
          Else
              MsgBox "La línea solicitada no existe en la respuesta."
@@ -1492,7 +1495,7 @@ End If
          oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, False
          '
          ' Llamar a la subrutina "DownloadFile"
-         DownloadFile "https://www.heavynight.com/launcherV5/launcher_config.js", "launcher\resources\app\launcher_config.js"
+         DownloadFile "https://www.heavynight.com/launcherV5/launcher_configs.js", "launcher\resources\app\launcher_config.js"
 
          ' Leer el contenido del archivo descargado
          Set fso = CreateObject("Scripting.FileSystemObject")
@@ -1505,6 +1508,7 @@ End If
          configContent = Replace(configContent, "{category-name}", carpeta)
          configContent = Replace(configContent, "{category-version}", cversion)
          configContent = Replace(configContent, "{category-forge}", forge)
+         configContent = Replace(configContent, "{category-java}", cjava)
          
          ' Guardar el contenido modificado de vuelta al archivo
          Set configFile = fso.OpenTextFile("launcher\resources\app\launcher_config.js", 2)
@@ -2358,6 +2362,7 @@ End If
              carpeta = responseLines(lineNumber)
              ip = responseLines(3)
              forge = responseLines(4)
+             cjava = responseLines(5)
              cversion = responseLines(1)
          Else
              MsgBox "La línea solicitada no existe en la respuesta."
@@ -2428,7 +2433,7 @@ End If
          oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, False
          '
          ' Llamar a la subrutina "DownloadFile"
-         DownloadFile "https://www.heavynight.com/launcherV5/launcher_config.js", "launcher\resources\app\launcher_config.js"
+         DownloadFile "https://www.heavynight.com/launcherV5/launcher_configs.js", "launcher\resources\app\launcher_config.js"
 
          ' Leer el contenido del archivo descargado
          Set fso = CreateObject("Scripting.FileSystemObject")
@@ -2441,6 +2446,7 @@ End If
          configContent = Replace(configContent, "{category-name}", carpeta)
          configContent = Replace(configContent, "{category-version}", cversion)
          configContent = Replace(configContent, "{category-forge}", forge)
+         configContent = Replace(configContent, "{category-java}", cjava)
          
          ' Guardar el contenido modificado de vuelta al archivo
          Set configFile = fso.OpenTextFile("launcher\resources\app\launcher_config.js", 2)
@@ -3294,6 +3300,7 @@ End If
              carpeta = responseLines(lineNumber)
              ip = responseLines(3)
              forge = responseLines(4)
+             cjava = responseLines(5)
              cversion = responseLines(1)
          Else
              MsgBox "La línea solicitada no existe en la respuesta."
@@ -3364,7 +3371,7 @@ End If
          oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, False
          '
          ' Llamar a la subrutina "DownloadFile"
-         DownloadFile "https://www.heavynight.com/launcherV5/launcher_config.js", "launcher\resources\app\launcher_config.js"
+         DownloadFile "https://www.heavynight.com/launcherV5/launcher_configs.js", "launcher\resources\app\launcher_config.js"
 
          ' Leer el contenido del archivo descargado
          Set fso = CreateObject("Scripting.FileSystemObject")
@@ -3376,6 +3383,7 @@ End If
          configContent = Replace(configContent, "{category-ip}", ip)
          configContent = Replace(configContent, "{category-name}", carpeta)
          configContent = Replace(configContent, "{category-version}", cversion)
+         configContent = Replace(configContent, "{category-java}", cjava)
          configContent = Replace(configContent, "{category-forge}", forge)
          
          ' Guardar el contenido modificado de vuelta al archivo
