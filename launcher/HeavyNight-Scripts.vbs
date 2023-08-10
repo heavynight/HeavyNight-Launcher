@@ -1,12 +1,13 @@
 ' Habilita la comprobación explícita de variables no declaradas
 Option Explicit
+Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 ' \\\\\\\\\\\ SECCIÓN DE TODAS LAS VARIABLES \\\\\\\\\\\
  Dim hn, objXmlHttp, objADOStream, objFSO, objFolder, strLocalFolderPath, strUrl, paginaweb, scriptPath, configFile, configContent
  Dim strLocalFolderName, strRemoteFolderName, objShell, result, oShell, strFolder, response, scriptFolder, ip, forge, cversion
- Dim strDestFolder, strNewFolderName, sourceFolderName, destFolder, WshShell, link, request, lockFile, cjava
+ Dim strDestFolder, strNewFolderName, sourceFolderName, destFolder, WshShell, link, request, lockFile, cjava, utf16Stream
  Dim Return, FolderDel, rename_file, obj, texto, MyBox, fso, carpeta, respuesta, file, maintenance, dataFolder
- Dim categoriavieja, nuevacategoria, arrFolders, subFolder, destPath, fileContent, i, line, winHttpReq
+ Dim categoriavieja, nuevacategoria, arrFolders, subFolder, destPath, fileContent, i, line, winHttpReq, carpetaViejaPath
  Dim fs, currentFolder, versionFolderPath, versionPath, versionFile, version, url, objFile, urlRemota
  Dim xmlhttp, remoteVersion, responseLines, lineNumber, rutamods, resultado, currentDir, UrlList, ipserver
  Dim strLocalFilePath, colProcesses, objProcess, lines, shell, returnCode, objWMIService, strFolderPath
@@ -142,6 +143,29 @@ End If
      Set objXMLHTTP = Nothing
      Set objADOStream = Nothing
  End Sub
+
+ ' Edicion de archivo
+ Sub EditLaunchCfgFile(filePath, searchStr, replaceStr)
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    If objFSO.FileExists(filePath) Then
+        ' Leer el contenido del archivo con codificación UTF-16 LE
+        Set objFile = objFSO.OpenTextFile(filePath, 1, False, -1)  ' 1: Lectura, -1: UTF-16 LE
+        fileContent = objFile.ReadAll()
+        objFile.Close
+        
+        ' Realizar la sustitución de texto en el contenido UTF-16 LE
+        fileContent = Replace(fileContent, searchStr, replaceStr)
+        
+        ' Crear un objeto ADODB.Stream para guardar el contenido modificado como UTF-16 LE
+        Set utf16Stream = CreateObject("ADODB.Stream")
+        utf16Stream.Open
+        utf16Stream.Charset = "UTF-16"
+        utf16Stream.WriteText fileContent
+        utf16Stream.SaveToFile filePath, 2  ' 2: Escritura, sobreescribir el archivo
+        utf16Stream.Close
+    End If
+    Set objFSO = Nothing
+ End Sub
 ' \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 ' \\\\\\\\\\\ SECCIÓN DE FUNCIONES GENERAL DEL LAUNCHER \\\\\\\\\\\
@@ -156,9 +180,14 @@ End If
      Set obj = CreateObject("Scripting.FileSystemObject")
      obj.DeleteFile("data/categorias.zip")
      obj.DeleteFile("data/java.zip")
-     obj.DeleteFile("data/b_instalar_a.png")
-     obj.DeleteFile("data/b_instalar_b.png")
-     obj.DeleteFile("data/b_instalar_c.png")
+
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "[p_0_img_button_8]", "//[p_0_img_button_8]"
+     EditLaunchCfgFile "data\launchcfg", "//[p_0_img_button_9]", "[p_0_img_button_9]"
+     EditLaunchCfgFile "data\launchcfg", "//[p_0_img_button_6]", "[p_0_img_button_6]"
+     EditLaunchCfgFile "data\launchcfg", "//[p_0_img_button_7]", "[p_0_img_button_7]"
+     EditLaunchCfgFile "data\launchcfg", "//[p_0_img_button_11]", "[p_0_img_button_11]"
+     EditLaunchCfgFile "data\launchcfg", "//[p_0_img_button_12]", "[p_0_img_button_12]"
  
      texto = "!La instalacion fue exitosa!, Iniciando laucher..."
      MyBox = MsgBox(texto, 266304, "HeavyNight!")
@@ -208,26 +237,13 @@ End If
      ' Regresa al directorio anterior
      wshShell.CurrentDirectory = currentDir
      '
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_instalar_a.png", "data\b_instalar_a.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_instalar_b.png", "data\b_instalar_b.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_instalar_c.png", "data\b_instalar_c.png"
-     '
-     Set obj = CreateObject("Scripting.FileSystemObject")
-     obj.DeleteFile("data\b_delete_inicio_a.png")
-     obj.DeleteFile("data\b_delete_inicio_b.png")
-     obj.DeleteFile("data\b_delete_inicio_c.png")
-     obj.DeleteFile("data\b_icono-c1_a.png")
-     obj.DeleteFile("data\b_icono-c1_b.png")
-     obj.DeleteFile("data\b_icono-c1_c.png")
-     obj.DeleteFile("data\b_icono-c2_a.png")
-     obj.DeleteFile("data\b_icono-c2_b.png")
-     obj.DeleteFile("data\b_icono-c2_c.png")
-     obj.DeleteFile("data\b_icono-c3_a.png")
-     obj.DeleteFile("data\b_icono-c3_b.png")
-     obj.DeleteFile("data\b_icono-c3_c.png")
-     obj.DeleteFile("data\b_icono-c4_a.png")
-     obj.DeleteFile("data\b_icono-c4_b.png")
-     obj.DeleteFile("data\b_icono-c4_c.png")
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "//[p_0_img_button_8]", "[p_0_img_button_8]"
+     EditLaunchCfgFile "data\launchcfg", "[p_0_img_button_9]", "//[p_0_img_button_9]"
+     EditLaunchCfgFile "data\launchcfg", "[p_0_img_button_6]", "//[p_0_img_button_6]"
+     EditLaunchCfgFile "data\launchcfg", "[p_0_img_button_7]", "//[p_0_img_button_7]"
+     EditLaunchCfgFile "data\launchcfg", "[p_0_img_button_11]", "//[p_0_img_button_11]"
+     EditLaunchCfgFile "data\launchcfg", "[p_0_img_button_12]", "//[p_0_img_button_12]"
      '
      Set obj = CreateObject("Scripting.FileSystemObject")
      obj.DeleteFile("launcher\*.exe")
@@ -343,46 +359,12 @@ End If
      Set obj = CreateObject("Scripting.FileSystemObject")
      obj.DeleteFile("data/instancia.zip")
      obj.DeleteFile("data/mods.zip")
-     obj.DeleteFile("data/b_descargar_a.png")
-     obj.DeleteFile("data/b_descargar_b.png")
-     obj.DeleteFile("data/b_descargar_c.png")
-     '
-     Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
-     
-     UrlList = Array( _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete_c.png")
-     
-     For Each url In UrlList
-         objXMLHTTP.open "GET", url, false
-         objXMLHTTP.send()
-     
-         If objXMLHTTP.Status = 200 Then
-             Set objADOStream = CreateObject("ADODB.Stream")
-             objADOStream.Open
-             objADOStream.Type = 1 'adTypeBinary
-     
-             objADOStream.Write objXMLHTTP.ResponseBody
-             objADOStream.Position = 0    'Set the stream position to the start
-     
-             Set objFSO = Createobject("Scripting.FileSystemObject")
-             If objFSO.Fileexists("data\" & Mid(url, InStrRev(url, "/") + 1)) Then objFSO.DeleteFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             Set objFSO = Nothing
-     
-             objADOStream.SaveToFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             objADOStream.Close
-             Set objADOStream = Nothing
-         Else
-             MsgBox "Error downloading file. Status: " & objXMLHTTP.Status
-         End If
-     Next
+
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_3]", "//[p_6_img_button_3]" '(b_descargar_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_1_img_button_4]", "[p_1_img_button_4]" '(b_juguar_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_1_img_button_11]", "[p_1_img_button_11]" '(b_delete_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_1_img_button_12]", "[p_1_img_button_12]" '(b_parches_a.png)
      '
      texto = "!La instalacion fue exitosa!, Abriendo launcher..."
      MyBox = MsgBox(texto,266304,"HeavyNight!")
@@ -433,22 +415,13 @@ End If
      '
      Set oShell = WScript.CreateObject ("WScript.Shell") 
      oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, True
-     '
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar_a.png", "data\b_descargar_a.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar_b.png", "data\b_descargar_b.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar_c.png", "data\b_descargar_c.png"
-     '
-     Set obj = CreateObject("Scripting.FileSystemObject")
-     obj.DeleteFile("data\b_delete_a.png")
-     obj.DeleteFile("data\b_delete_b.png")
-     obj.DeleteFile("data\b_delete_c.png")
-     obj.DeleteFile("data\b_jugar_a.png")
-     obj.DeleteFile("data\b_jugar_b.png")
-     obj.DeleteFile("data\b_jugar_c.png")
-     obj.DeleteFile("data\b_parches_a.png")
-     obj.DeleteFile("data\b_parches_b.png")
-     obj.DeleteFile("data\b_parches_c.png")
-     '
+     
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_3]", "[p_6_img_button_3]" '(b_descargar_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_4]", "//[p_1_img_button_4]" '(b_juguar_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_11]", "//[p_1_img_button_11]" '(b_delete_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_12]", "//[p_1_img_button_12]" '(b_parches_a.png)
+     
      Set fso=createobject("Scripting.FileSystemObject")
      FolderDel="launcher\" & carpeta & ""
      fso.DeleteFolder(FolderDel)
@@ -924,7 +897,8 @@ End If
                  ' Convertir los nombres de las carpetas a minúsculas antes de comparar
                  If LCase(categoriavieja) <> LCase(nuevacategoria) Then
                      ' Aquí puede agregar el código que desea ejecutar cuando los nombres no coinciden
-                         If objFSO.FolderExists(categoriavieja) Then
+                         carpetaViejaPath = "launcher\" & categoriavieja
+                         If objFSO.FolderExists(carpetaViejaPath) Then
                              result = MsgBox("Hemos marcado la categoria " & categoriavieja & " como 'CERRADA' ya que hay una nueva disponible actualmente llamada " & nuevacategoria & "." & vbCrLf & "" & vbCrLf & "Quieres actualizar a la nueva categoria?", 4+48, "HeavyNight - Categorias")
                              If result = 6 Then
                                  result = MsgBox("Quieres hacer una copia de seguridad de tus archivos guardados en " & categoriavieja & " antes de actualizar?", 4+48, "HeavyNight - Categorias")
@@ -969,18 +943,15 @@ End If
                                          ' Renombrar la carpeta de origen al nuevo nombre
                                          objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                        
+                                         'Editar el archivo "launchcfg"
+                                          EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_12]", "//[p_1_img_button_12]" '(b_parches_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_11]", "//[p_1_img_button_11]" '(b_delete_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_4]", "//[p_1_img_button_4]" '(b_jugar_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "//[p_1_img_button_13]", "[p_1_img_button_13]" '(b_instalar1_a.png)
+ 
                                          ' Descargar los archivos de instalar nueva categoría
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar1_a.png", "data\b_instalar1_a.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar1_b.png", "data\b_instalar1_b.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar1_c.png", "data\b_instalar1_c.png")
-                       
-                                         ' Borra los archivos
-                                         objFSO.DeleteFile("data\b_parches_a.png")
-                                         objFSO.DeleteFile("data\b_parches_b.png")
-                                         objFSO.DeleteFile("data\b_parches_c.png")
-                                         objFSO.DeleteFile("data\b_delete_a.png")
-                                         objFSO.DeleteFile("data\b_delete_b.png")
-                                         objFSO.DeleteFile("data\b_delete_c.png")
+                                         Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria1/imagenes/logo.png", "data\logo-C1.png")
+                                         Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria1/imagenes/titulo.png", "data\titulo-C1.png")
                        
                                          ' Crear un nuevo ArrayList
                                          Set lines = CreateObject("System.Collections.ArrayList")
@@ -1000,6 +971,7 @@ End If
                                          lines.Item(0) = nuevacategoria
                        
                                          ' Abre el archivo para escribir
+                                         Set objFSO = CreateObject("Scripting.FileSystemObject")
                                          Set objFile = objFSO.OpenTextFile(strLocalFilePath, 2)
                        
                                          ' Escribe todas las líneas en el archivo
@@ -1053,23 +1025,21 @@ End If
                                          ' Renombrar la carpeta de origen al nuevo nombre
                                          objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                        
-                                         ' Descargar los archivos de instalar nueva categoría
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar1_a.png", "data\b_instalar1_a.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar1_b.png", "data\b_instalar1_b.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar1_c.png", "data\b_instalar1_c.png")
-                       
-                                         ' Borra los archivos
-                                         objFSO.DeleteFile("data\b_parches_a.png")
-                                         objFSO.DeleteFile("data\b_parches_b.png")
-                                         objFSO.DeleteFile("data\b_parches_c.png")
-                                         objFSO.DeleteFile("data\b_delete_a.png")
-                                         objFSO.DeleteFile("data\b_delete_b.png")
-                                         objFSO.DeleteFile("data\b_delete_c.png")
+                                         'Editar el archivo "launchcfg"
+                                          EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_12]", "//[p_1_img_button_12]" '(b_parches_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_11]", "//[p_1_img_button_11]" '(b_delete_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "[p_1_img_button_4]", "//[p_1_img_button_4]" '(b_jugar_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "//[p_1_img_button_13]", "[p_1_img_button_13]" '(b_instalar1_a.png)
+
+                                          ' Descargar los archivos de instalar nueva categoría
+                                          Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria1/imagenes/logo.png", "data\logo-C1.png")
+                                          Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria1/imagenes/titulo.png", "data\titulo-C1.png")
                        
                                          ' Crear un nuevo ArrayList
                                          Set lines = CreateObject("System.Collections.ArrayList")
                        
                                          ' Abrir el archivo para leer
+                                         Set objFSO = CreateObject("Scripting.FileSystemObject")
                                          Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                                          ' Leer todas las líneas en el ArrayList
@@ -1110,6 +1080,7 @@ End If
                              Set lines = CreateObject("System.Collections.ArrayList")
                        
                              ' Abrir el archivo para leer
+                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                              ' Leer todas las líneas en el ArrayList
@@ -1284,46 +1255,12 @@ End If
      Set obj = CreateObject("Scripting.FileSystemObject")
      obj.DeleteFile("data/instancia.zip")
      obj.DeleteFile("data/mods.zip")
-     obj.DeleteFile("data/b_descargar2_a.png")
-     obj.DeleteFile("data/b_descargar2_b.png")
-     obj.DeleteFile("data/b_descargar2_c.png")
-     '
-     Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
-     
-     UrlList = Array( _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar2_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar2_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar2_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches2_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches2_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches2_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete2_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete2_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete2_c.png")
-     
-     For Each url In UrlList
-         objXMLHTTP.open "GET", url, false
-         objXMLHTTP.send()
-     
-         If objXMLHTTP.Status = 200 Then
-             Set objADOStream = CreateObject("ADODB.Stream")
-             objADOStream.Open
-             objADOStream.Type = 1 'adTypeBinary
-     
-             objADOStream.Write objXMLHTTP.ResponseBody
-             objADOStream.Position = 0    'Set the stream position to the start
-     
-             Set objFSO = Createobject("Scripting.FileSystemObject")
-             If objFSO.Fileexists("data\" & Mid(url, InStrRev(url, "/") + 1)) Then objFSO.DeleteFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             Set objFSO = Nothing
-     
-             objADOStream.SaveToFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             objADOStream.Close
-             Set objADOStream = Nothing
-         Else
-             MsgBox "Error downloading file. Status: " & objXMLHTTP.Status
-         End If
-     Next
+
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_5]", "//[p_2_img_button_5]" '(b_descargar_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_2_img_button_4]", "[p_2_img_button_4]" '(b_jugar2_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_2_img_button_10]", "[p_2_img_button_10]" '(b_delete2_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_2_img_button_1]", "[p_2_img_button_1]" '(b_parches2_a.png)
      '
      texto = "!La instalacion fue exitosa!, Abriendo launcher..."
      MyBox = MsgBox(texto,266304,"HeavyNight!")
@@ -1375,20 +1312,11 @@ End If
      Set oShell = WScript.CreateObject ("WScript.Shell") 
      oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, True
      '
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar2_a.png", "data\b_descargar2_a.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar2_b.png", "data\b_descargar2_b.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar2_c.png", "data\b_descargar2_c.png"
-     '
-     Set obj = CreateObject("Scripting.FileSystemObject")
-     obj.DeleteFile("data\b_delete2_a.png")
-     obj.DeleteFile("data\b_delete2_b.png")
-     obj.DeleteFile("data\b_delete2_c.png")
-     obj.DeleteFile("data\b_jugar2_a.png")
-     obj.DeleteFile("data\b_jugar2_b.png")
-     obj.DeleteFile("data\b_jugar2_c.png")
-     obj.DeleteFile("data\b_parches2_a.png")
-     obj.DeleteFile("data\b_parches2_b.png")
-     obj.DeleteFile("data\b_parches2_c.png")
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "//[p_2_img_button_5]", "[p_2_img_button_5]" '(b_descargar_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_4]", "//[p_2_img_button_4]" '(b_jugar2_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_10]", "//[p_2_img_button_10]" '(b_delete2_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_1]", "//[p_2_img_button_1]" '(b_parches2_a.png)
      '
      Set fso=createobject("Scripting.FileSystemObject")
      FolderDel="launcher\" & carpeta & ""
@@ -1866,7 +1794,8 @@ End If
                  ' Convertir los nombres de las carpetas a minúsculas antes de comparar
                  If LCase(categoriavieja) <> LCase(nuevacategoria) Then
                      ' Aquí puede agregar el código que desea ejecutar cuando los nombres no coinciden
-                         If objFSO.FolderExists(categoriavieja) Then
+                         carpetaViejaPath = "launcher\" & categoriavieja
+                         If objFSO.FolderExists(carpetaViejaPath) Then
                              result = MsgBox("Hemos marcado la categoria " & categoriavieja & " como 'CERRADA' ya que hay una nueva disponible actualmente llamada " & nuevacategoria & "." & vbCrLf & "" & vbCrLf & "Quieres actualizar a la nueva categoria?", 4+48, "HeavyNight - Categorias")
                              If result = 6 Then
                                  result = MsgBox("Quieres hacer una copia de seguridad de tus archivos guardados en " & categoriavieja & " antes de actualizar?", 4+48, "HeavyNight - Categorias")
@@ -1911,23 +1840,21 @@ End If
                                          ' Renombrar la carpeta de origen al nuevo nombre
                                          objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                        
+                                         'Editar el archivo "launchcfg"
+                                          EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_1]", "//[p_2_img_button_1]" '(b_parches2_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "p_2_img_button_10]", "//p_2_img_button_10]" '(b_delete2_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_4]", "//[p_2_img_button_4]" '(b_jugar2_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "//[p_2_img_button_11]", "[p_2_img_button_11]" '(b_instalar2_a.png)
+ 
                                          ' Descargar los archivos de instalar nueva categoría
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar2_a.png", "data\b_instalar2_a.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar2_b.png", "data\b_instalar2_b.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar2_c.png", "data\b_instalar2_c.png")
-                       
-                                         ' Borra los archivos
-                                         objFSO.DeleteFile("data\b_parches2_a.png")
-                                         objFSO.DeleteFile("data\b_parches2_b.png")
-                                         objFSO.DeleteFile("data\b_parches2_c.png")
-                                         objFSO.DeleteFile("data\b_delete2_a.png")
-                                         objFSO.DeleteFile("data\b_delete2_b.png")
-                                         objFSO.DeleteFile("data\b_delete2_c.png")
+                                         Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria2/imagenes/logo.png", "data\logo-C2.png")
+                                         Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria2/imagenes/titulo.png", "data\titulo-C2.png")
                        
                                          ' Crear un nuevo ArrayList
                                          Set lines = CreateObject("System.Collections.ArrayList")
                        
                                          ' Abrir el archivo para leer
+                                         Set objFSO = CreateObject("Scripting.FileSystemObject")
                                          Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                                          ' Leer todas las líneas en el ArrayList
@@ -1995,23 +1922,21 @@ End If
                                          ' Renombrar la carpeta de origen al nuevo nombre
                                          objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                        
+                                         'Editar el archivo "launchcfg"
+                                          EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_1]", "//[p_2_img_button_1]" '(b_parches2_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "p_2_img_button_10]", "//p_2_img_button_10]" '(b_delete2_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "[p_2_img_button_4]", "//[p_2_img_button_4]" '(b_jugar2_a.png)
+                                          EditLaunchCfgFile "data\launchcfg", "//[p_2_img_button_11]", "[p_2_img_button_11]" '(b_instalar2_a.png)
+ 
                                          ' Descargar los archivos de instalar nueva categoría
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar2_a.png", "data\b_instalar2_a.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar2_b.png", "data\b_instalar2_b.png")
-                                         Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar2_c.png", "data\b_instalar2_c.png")
-                       
-                                         ' Borra los archivos
-                                         objFSO.DeleteFile("data\b_parches2_a.png")
-                                         objFSO.DeleteFile("data\b_parches2_b.png")
-                                         objFSO.DeleteFile("data\b_parches2_c.png")
-                                         objFSO.DeleteFile("data\b_delete2_a.png")
-                                         objFSO.DeleteFile("data\b_delete2_b.png")
-                                         objFSO.DeleteFile("data\b_delete2_c.png")
+                                         Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria2/imagenes/logo.png", "data\logo-C2.png")
+                                         Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria2/imagenes/titulo.png", "data\titulo-C2.png")
                        
                                          ' Crear un nuevo ArrayList
                                          Set lines = CreateObject("System.Collections.ArrayList")
                        
                                          ' Abrir el archivo para leer
+                                         Set objFSO = CreateObject("Scripting.FileSystemObject")
                                          Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                                          ' Leer todas las líneas en el ArrayList
@@ -2051,6 +1976,7 @@ End If
                              Set lines = CreateObject("System.Collections.ArrayList")
                        
                              ' Abrir el archivo para leer
+                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                              ' Leer todas las líneas en el ArrayList
@@ -2222,46 +2148,12 @@ End If
      Set obj = CreateObject("Scripting.FileSystemObject")
      obj.DeleteFile("data/instancia.zip")
      obj.DeleteFile("data/mods.zip")
-     obj.DeleteFile("data/b_descargar3_a.png")
-     obj.DeleteFile("data/b_descargar3_b.png")
-     obj.DeleteFile("data/b_descargar3_c.png")
-     '
-     Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
-     
-     UrlList = Array( _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar3_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar3_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar3_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches3_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches3_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches3_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete3_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete3_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete3_c.png")
-     
-     For Each url In UrlList
-         objXMLHTTP.open "GET", url, false
-         objXMLHTTP.send()
-     
-         If objXMLHTTP.Status = 200 Then
-             Set objADOStream = CreateObject("ADODB.Stream")
-             objADOStream.Open
-             objADOStream.Type = 1 'adTypeBinary
-     
-             objADOStream.Write objXMLHTTP.ResponseBody
-             objADOStream.Position = 0    'Set the stream position to the start
-     
-             Set objFSO = Createobject("Scripting.FileSystemObject")
-             If objFSO.Fileexists("data\" & Mid(url, InStrRev(url, "/") + 1)) Then objFSO.DeleteFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             Set objFSO = Nothing
-     
-             objADOStream.SaveToFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             objADOStream.Close
-             Set objADOStream = Nothing
-         Else
-             MsgBox "Error downloading file. Status: " & objXMLHTTP.Status
-         End If
-     Next
+
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_7]", "//[p_3_img_button_7]" '(b_descargar3_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_3_img_button_8]", "[p_3_img_button_8]" '(b_jugar3_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_3_img_button_10]", "[p_3_img_button_10]" '(b_delete3_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_3_img_button_4]", "[p_3_img_button_4]" '(b_parches3_a.png)
      '
      texto = "!La instalacion fue exitosa!, Abriendo launcher..."
      MyBox = MsgBox(texto,266304,"HeavyNight!")
@@ -2313,20 +2205,11 @@ End If
      Set oShell = WScript.CreateObject ("WScript.Shell") 
      oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, True
      '
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar3_a.png", "data\b_descargar3_a.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar3_b.png", "data\b_descargar3_b.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar3_c.png", "data\b_descargar3_c.png"
-     '
-     Set obj = CreateObject("Scripting.FileSystemObject")
-     obj.DeleteFile("data\b_delete3_a.png")
-     obj.DeleteFile("data\b_delete3_b.png")
-     obj.DeleteFile("data\b_delete3_c.png")
-     obj.DeleteFile("data\b_jugar3_a.png")
-     obj.DeleteFile("data\b_jugar3_b.png")
-     obj.DeleteFile("data\b_jugar3_c.png")
-     obj.DeleteFile("data\b_parches3_a.png")
-     obj.DeleteFile("data\b_parches3_b.png")
-     obj.DeleteFile("data\b_parches3_c.png")
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "//[p_3_img_button_7]", "[p_3_img_button_7]" '(b_descargar3_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_8]", "//[p_3_img_button_8]" '(b_jugar3_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_10]", "//[p_3_img_button_10]" '(b_delete3_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_4]", "//[p_3_img_button_4]" '(b_parches3_a.png)
      '
      Set fso=createobject("Scripting.FileSystemObject")
      FolderDel="launcher\" & carpeta & ""
@@ -2805,7 +2688,8 @@ End If
                  ' Convertir los nombres de las carpetas a minúsculas antes de comparar
                  If LCase(categoriavieja) <> LCase(nuevacategoria) Then
                      ' Aquí puede agregar el código que desea ejecutar cuando los nombres no coinciden
-                         If objFSO.FolderExists(categoriavieja) Then
+                         carpetaViejaPath = "launcher\" & categoriavieja
+                         If objFSO.FolderExists(carpetaViejaPath) Then
                              result = MsgBox("Hemos marcado la categoria " & categoriavieja & " como 'CERRADA' ya que hay una nueva disponible actualmente llamada " & nuevacategoria & "." & vbCrLf & "" & vbCrLf & "Quieres actualizar a la nueva categoria?", 4+48, "HeavyNight - Categorias")
                              If result = 6 Then
                                      result = MsgBox("Quieres hacer una copia de seguridad de tus archivos guardados en " & categoriavieja & " antes de actualizar?", 4+48, "HeavyNight - Categorias")
@@ -2850,23 +2734,21 @@ End If
                                              ' Renombrar la carpeta de origen al nuevo nombre
                                              objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                            
+                                             'Editar el archivo "launchcfg"
+                                             EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_4]", "//[p_3_img_button_4]" '(b_parches3_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_10]", "//[p_3_img_button_10]" '(b_delete3_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_8]", "//[p_3_img_button_8]" '(b_jugar3_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "//[p_3_img_button_9]", "[p_3_img_button_9]" '(b_instalar3_a.png)
+    
                                              ' Descargar los archivos de instalar nueva categoría
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar3_a.png", "data\b_instalar3_a.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar3_b.png", "data\b_instalar3_b.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar3_c.png", "data\b_instalar3_c.png")
-                           
-                                             ' Borra los archivos
-                                             objFSO.DeleteFile("data\b_parches3_a.png")
-                                             objFSO.DeleteFile("data\b_parches3_b.png")
-                                             objFSO.DeleteFile("data\b_parches3_c.png")
-                                             objFSO.DeleteFile("data\b_delete3_a.png")
-                                             objFSO.DeleteFile("data\b_delete3_b.png")
-                                             objFSO.DeleteFile("data\b_delete3_c.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria3/imagenes/logo.png", "data\logo-C3.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria3/imagenes/titulo.png", "data\titulo-C3.png")
                            
                                              ' Crear un nuevo ArrayList
                                              Set lines = CreateObject("System.Collections.ArrayList")
                            
                                              ' Abrir el archivo para leer
+                                             Set objFSO = CreateObject("Scripting.FileSystemObject"
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                            
                                              ' Leer todas las líneas en el ArrayList
@@ -2932,23 +2814,21 @@ End If
                                              ' Renombrar la carpeta de origen al nuevo nombre
                                              objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                            
+                                             'Editar el archivo "launchcfg"
+                                             EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_4]", "//[p_3_img_button_4]" '(b_parches3_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_10]", "//[p_3_img_button_10]" '(b_delete3_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_3_img_button_8]", "//[p_3_img_button_8]" '(b_jugar3_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "//[p_3_img_button_9]", "[p_3_img_button_9]" '(b_instalar3_a.png)
+    
                                              ' Descargar los archivos de instalar nueva categoría
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar3_a.png", "data\b_instalar3_a.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar3_b.png", "data\b_instalar3_b.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar3_c.png", "data\b_instalar3_c.png")
-                           
-                                             ' Borra los archivos
-                                             objFSO.DeleteFile("data\b_parches3_a.png")
-                                             objFSO.DeleteFile("data\b_parches3_b.png")
-                                             objFSO.DeleteFile("data\b_parches3_c.png")
-                                             objFSO.DeleteFile("data\b_delete3_a.png")
-                                             objFSO.DeleteFile("data\b_delete3_b.png")
-                                             objFSO.DeleteFile("data\b_delete3_c.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria3/imagenes/logo.png", "data\logo-C3.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria3/imagenes/titulo.png", "data\titulo-C3.png")
                            
                                              ' Crear un nuevo ArrayList
                                              Set lines = CreateObject("System.Collections.ArrayList")
                            
                                              ' Abrir el archivo para leer
+                                             Set objFSO = CreateObject("Scripting.FileSystemObject"
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                            
                                              ' Leer todas las líneas en el ArrayList
@@ -2989,6 +2869,7 @@ End If
                              Set lines = CreateObject("System.Collections.ArrayList")
                        
                              ' Abrir el archivo para leer
+                             Set objFSO = CreateObject("Scripting.FileSystemObject"
                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                              ' Leer todas las líneas en el ArrayList
@@ -3160,46 +3041,13 @@ End If
      Set obj = CreateObject("Scripting.FileSystemObject")
      obj.DeleteFile("data/instancia.zip")
      obj.DeleteFile("data/mods.zip")
-     obj.DeleteFile("data/b_descargar4_a.png")
-     obj.DeleteFile("data/b_descargar4_b.png")
-     obj.DeleteFile("data/b_descargar4_c.png")
-     '
-     Set objXMLHTTP = CreateObject("MSXML2.ServerXMLHTTP")
+
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_3]", "//[p_6_img_button_3]" '(b_descargar4_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_11]", "[p_6_img_button_11]" '(b_jugar4_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_10]", "[p_6_img_button_10]" '(b_parches4_a.png)
+     EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_6]", "[p_6_img_button_6]" '(b_delete4_a.png)
      
-     UrlList = Array( _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar4_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar4_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_jugar4_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches4_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches4_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_parches4_c.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete4_a.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete4_b.png", _
-         "https://www.heavynight.com/launcherV5/imagenes/b_delete4_c.png")
-     
-     For Each url In UrlList
-         objXMLHTTP.open "GET", url, false
-         objXMLHTTP.send()
-     
-         If objXMLHTTP.Status = 200 Then
-             Set objADOStream = CreateObject("ADODB.Stream")
-             objADOStream.Open
-             objADOStream.Type = 1 'adTypeBinary
-     
-             objADOStream.Write objXMLHTTP.ResponseBody
-             objADOStream.Position = 0    'Set the stream position to the start
-     
-             Set objFSO = Createobject("Scripting.FileSystemObject")
-             If objFSO.Fileexists("data\" & Mid(url, InStrRev(url, "/") + 1)) Then objFSO.DeleteFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             Set objFSO = Nothing
-     
-             objADOStream.SaveToFile "data\" & Mid(url, InStrRev(url, "/") + 1)
-             objADOStream.Close
-             Set objADOStream = Nothing
-         Else
-             MsgBox "Error downloading file. Status: " & objXMLHTTP.Status
-         End If
-     Next
      '
      texto = "!La instalacion fue exitosa!, Abriendo launcher..."
      MyBox = MsgBox(texto,266304,"HeavyNight!")
@@ -3220,7 +3068,7 @@ End If
  
  ' DESINSTALA LA CATEGORIA 4
  Sub SeccionE2()
-     url = "https://www.heavynightlauncher.com/Launcher-Categorias/Categoria3/Category-Name.php"
+     url = "https://www.heavynightlauncher.com/Launcher-Categorias/Categoria4/Category-Name.php"
      lineNumber = 0 ' La tercera linea
      
      Set xmlhttp = CreateObject("MSXML2.XMLHTTP")
@@ -3245,26 +3093,17 @@ End If
      Set fso = CreateObject("Scripting.FileSystemObject")
      If fso.FolderExists("launcher\" & carpeta & "\assets") Then
  
-     result = msgbox("Esta accion eliminara por completo la instancia y no habra vuelta atras. Tardara unos segundos y cuando haya terminado se abrira el launcher nuevamente." & vbCrLf & "" & vbCrLf & "¿Estas seguro?",4+48, "HeavyNiht - Desinstalador")
+     result = msgbox("Esta accion eliminara por completo la instancia y no habra vuelta atras. Tardara unos segundos y cuando haya terminado se abrira el launcher nuevamente." & vbCrLf & "" & vbCrLf & "Estas seguro?",4+48, "HeavyNight - Desinstalador")
      If result=6 then
      '
      Set oShell = WScript.CreateObject ("WScript.Shell") 
      oShell.Run "cmd /c taskkill /IM HeavyNight.exe", 0, True
-     '
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar4_a.png", "data\b_descargar4_a.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar4_b.png", "data\b_descargar4_b.png"
-     DownloadFile "https://www.heavynight.com/launcherV5/imagenes/b_descargar4_c.png", "data\b_descargar4_c.png"
-     '
-     Set obj = CreateObject("Scripting.FileSystemObject")
-     obj.DeleteFile("data\b_delete4_a.png")
-     obj.DeleteFile("data\b_delete4_b.png")
-     obj.DeleteFile("data\b_delete4_c.png")
-     obj.DeleteFile("data\b_jugar4_a.png")
-     obj.DeleteFile("data\b_jugar4_b.png")
-     obj.DeleteFile("data\b_jugar4_c.png")
-     obj.DeleteFile("data\b_parches4_a.png")
-     obj.DeleteFile("data\b_parches4_b.png")
-     obj.DeleteFile("data\b_parches4_c.png")
+
+     'Editar el archivo "launchcfg"
+     EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_3]", "[p_6_img_button_3]" '(b_descargar4_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_11]", "//[p_6_img_button_11]" '(b_jugar4_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_10]", "//[p_6_img_button_10]" '(b_parches4_a.png)
+     EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_6]", "//[p_6_img_button_6]" '(b_delete4_a.png)
      '
      Set fso=createobject("Scripting.FileSystemObject")
      FolderDel="launcher\" & carpeta & ""
@@ -3721,7 +3560,7 @@ End If
          Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
          objFile.ReadLine' descarta la primera línea
          objFile.ReadLine' descarta la segunda línea
-         objFile.ReadLine' descarta la segunda línea
+         objFile.ReadLine' descarta la tercera línea
          categoriavieja = objFile.ReadLine
          
          ' No olvides cerrar el archivo cuando hayas terminado de usarlo
@@ -3744,7 +3583,8 @@ End If
                  ' Convertir los nombres de las carpetas a minúsculas antes de comparar
                  If LCase(categoriavieja) <> LCase(nuevacategoria) Then
                      ' Aquí puede agregar el código que desea ejecutar cuando los nombres no coinciden
-                         If objFSO.FolderExists(categoriavieja) Then
+                         carpetaViejaPath = "launcher\" & categoriavieja
+                         If objFSO.FolderExists(carpetaViejaPath) Then
                              result = MsgBox("Hemos marcado la categoria " & categoriavieja & " como 'CERRADA' ya que hay una nueva disponible actualmente llamada " & nuevacategoria & "." & vbCrLf & "" & vbCrLf & "Quieres actualizar a la nueva categoria?", 4+48, "HeavyNight - Categorias")
                              If result = 6 Then
                                      result = MsgBox("Quieres hacer una copia de seguridad de tus archivos guardados en " & categoriavieja & " antes de actualizar?", 4+48, "HeavyNight - Categorias")
@@ -3788,24 +3628,22 @@ End If
                            
                                              ' Renombrar la carpeta de origen al nuevo nombre
                                              objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
-                           
+
+                                             'Editar el archivo "launchcfg"
+                                             EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_10]", "//[p_6_img_button_10]" '(b_parches4_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_6]", "//[p_6_img_button_6]" '(b_delete4_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_11]", "//[p_6_img_button_11]" '(b_jugar4_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_12]", "[p_6_img_button_12]" '(b_instalar4_a.png)
+
                                              ' Descargar los archivos de instalar nueva categoría
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar4_a.png", "data\b_instalar4_a.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar4_b.png", "data\b_instalar4_b.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar4_c.png", "data\b_instalar4_c.png")
-                           
-                                             ' Borra los archivos
-                                             objFSO.DeleteFile("data\b_parches4_a.png")
-                                             objFSO.DeleteFile("data\b_parches4_b.png")
-                                             objFSO.DeleteFile("data\b_parches4_c.png")
-                                             objFSO.DeleteFile("data\b_delete4a.png")
-                                             objFSO.DeleteFile("data\b_delete4_b.png")
-                                             objFSO.DeleteFile("data\b_delete4_c.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/logo.png", "data\logo-C4.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/titulo.png", "data\titulo-C4.png")
                            
                                              ' Crear un nuevo ArrayList
                                              Set lines = CreateObject("System.Collections.ArrayList")
                            
                                              ' Abrir el archivo para leer
+                                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                            
                                              ' Leer todas las líneas en el ArrayList
@@ -3817,7 +3655,7 @@ End If
                                              objFile.Close
                            
                                              ' Cambia la tercera línea al nombre de la nueva categoría
-                                             lines.Item(2) = nuevacategoria
+                                             lines.Item(3) = nuevacategoria
                            
                                              ' Abre el archivo para escribir
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 2)
@@ -3871,23 +3709,21 @@ End If
                                              ' Renombrar la carpeta de origen al nuevo nombre
                                              objFSO.MoveFolder strFolder, objFSO.BuildPath(objFSO.GetParentFolderName(strFolder), strNewFolderName)
                            
+                                             'Editar el archivo "launchcfg"
+                                             EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_10]", "//[p_6_img_button_10]" '(b_parches4_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_6]", "//[p_6_img_button_6]" '(b_delete4_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "[p_6_img_button_11]", "//[p_6_img_button_11]" '(b_jugar4_a.png)
+                                             EditLaunchCfgFile "data\launchcfg", "//[p_6_img_button_12]", "[p_6_img_button_12]" '(b_instalar4_a.png)
+                                             
                                              ' Descargar los archivos de instalar nueva categoría
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar4_a.png", "data\b_instalar4_a.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar4_b.png", "data\b_instalar4_b.png")
-                                             Call DownloadFile("https://www.heavynight.com/public/launcherV5/imagenes/b_instalar4_c.png", "data\b_instalar4_c.png")
-                           
-                                             ' Borra los archivos
-                                             objFSO.DeleteFile("data\b_parches4_a.png")
-                                             objFSO.DeleteFile("data\b_parches4_b.png")
-                                             objFSO.DeleteFile("data\b_parches4_c.png")
-                                             objFSO.DeleteFile("data\b_delete4_a.png")
-                                             objFSO.DeleteFile("data\b_delete4_b.png")
-                                             objFSO.DeleteFile("data\b_delete4_c.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/logo.png", "data\logo-C4.png")
+                                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/titulo.png", "data\titulo-C4.png")
                            
                                              ' Crear un nuevo ArrayList
                                              Set lines = CreateObject("System.Collections.ArrayList")
                            
                                              ' Abrir el archivo para leer
+                                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                            
                                              ' Leer todas las líneas en el ArrayList
@@ -3899,7 +3735,7 @@ End If
                                              objFile.Close
                            
                                              ' Cambia la tercera línea al nombre de la nueva categoría
-                                             lines.Item(2) = nuevacategoria
+                                             lines.Item(3) = nuevacategoria
                            
                                              ' Abre el archivo para escribir
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 2)
@@ -3921,8 +3757,8 @@ End If
                                  End If
                          Else
                              ' Descargar los archivos de instalar nueva categoría
-                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/logo.png", "data\logo-C3.png")
-                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/titulo.png", "data\titulo-C3.png")
+                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/logo.png", "data\logo-C4.png")
+                             Call DownloadFile("https://heavynightlauncher.com/Launcher-Categorias/Categoria4/imagenes/titulo.png", "data\titulo-C4.png")
  
                              ' Crear un nuevo ArrayList
                              Set lines = CreateObject("System.Collections.ArrayList")
@@ -3939,9 +3775,10 @@ End If
                              objFile.Close
                        
                              ' Cambia la tercera línea al nombre de la nueva categoría
-                             lines.Item(2) = nuevacategoria
+                             lines.Item(3) = nuevacategoria
                        
                              ' Abre el archivo para escribir
+                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 2)
                        
                              ' Escribe todas las líneas en el archivo
@@ -4175,7 +4012,7 @@ End If
          Case Else
              WScript.Echo "Valor no válido para hn. Use una 'case'."
      End Select
- 
+
      ' Mostrar ventana emergente de error predeterminada si hubo un error en la sección
      If Err.Number <> 0 Then
          MsgBox "Error al ejecutar la sección: " & Err.Description, vbExclamation, "Error"
