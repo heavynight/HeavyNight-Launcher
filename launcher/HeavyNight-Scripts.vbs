@@ -2748,7 +2748,7 @@ End If
                                              Set lines = CreateObject("System.Collections.ArrayList")
                            
                                              ' Abrir el archivo para leer
-                                             Set objFSO = CreateObject("Scripting.FileSystemObject"
+                                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                            
                                              ' Leer todas las líneas en el ArrayList
@@ -2828,7 +2828,7 @@ End If
                                              Set lines = CreateObject("System.Collections.ArrayList")
                            
                                              ' Abrir el archivo para leer
-                                             Set objFSO = CreateObject("Scripting.FileSystemObject"
+                                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                            
                                              ' Leer todas las líneas en el ArrayList
@@ -2869,7 +2869,7 @@ End If
                              Set lines = CreateObject("System.Collections.ArrayList")
                        
                              ' Abrir el archivo para leer
-                             Set objFSO = CreateObject("Scripting.FileSystemObject"
+                             Set objFSO = CreateObject("Scripting.FileSystemObject")
                              Set objFile = objFSO.OpenTextFile(strLocalFilePath, 1)
                        
                              ' Leer todas las líneas en el ArrayList
