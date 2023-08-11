@@ -3479,7 +3479,7 @@ End If
      configFile.Close
      '
      Set WshShell = WScript.CreateObject("WScript.Shell")
-     Return = WshShell.Run("launcher\server_sync.exe c3serversync", 1, True)
+     Return = WshShell.Run("launcher\server_sync.exe c4serversync", 1, True)
      '
      Set WshShell = WScript.CreateObject("WScript.Shell")
      Return = WshShell.Run("HeavyNight.exe", 1, false)
